@@ -3,10 +3,6 @@
 Personal notes and implementations from the **NVIDIA Deep Learning Institute** course
 *"Building RAG Agents for LLMs"*.
 
-> **Note:** The original course notebooks (`course-contents/`) cannot be redistributed
-> without NVIDIA authorization and are excluded from this repo. Everything here is
-> my own paraphrased notes and independently written implementations.
-
 ---
 
 ## Repository Structure
