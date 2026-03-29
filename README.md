@@ -1,4 +1,4 @@
-# NVIDIA RAG for LLM — Personal Study Notes & Project Code
+# NVIDIA RAG for LLM Project Code
 
 Personal notes and implementations from the **NVIDIA Deep Learning Institute** course
 *"Building RAG Agents for LLMs"*.
