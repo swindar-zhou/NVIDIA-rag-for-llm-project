@@ -1,0 +1,29 @@
+# Course materials — cannot be distributed without NVIDIA DLI authorization
+course-contents/
+
+# Vector store index (large binary files, rebuilt from arXiv on demand)
+docstore_index/
+*.tgz
+*.tar.gz
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# OS
+.DS_Store
+Thumbs.db
+
+# API keys
+.env
+*.env
+secrets.py
