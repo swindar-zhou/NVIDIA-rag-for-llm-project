@@ -17,7 +17,7 @@ Personal notes and implementations from the **NVIDIA Deep Learning Institute** c
 ## Notes
 
 Personal notes written while going through the course — paraphrased concepts,
-key code patterns, and thinking questions. Not verbatim course content.
+key code patterns, and thinking questions.
 
 | File | Topic |
 |---|---|
