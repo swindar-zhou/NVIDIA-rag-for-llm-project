@@ -36,10 +36,6 @@ This project walks through building a production-style **Retrieval-Augmented Gen
 - **Content moderation / guardrails** — the embedding classifier approach (notebook 64) is a fast, low-latency alternative to LLM-based content filtering
 - **Automated evaluation pipelines** — the LLM-as-a-Judge pattern (notebook 8) applies to any LLM system where you need scalable quality measurement without manual labeling
 
-> **Note:** The original course notebooks (`course-contents/`) cannot be redistributed
-> without NVIDIA authorization and are excluded from this repo. Everything here is
-> my own paraphrased notes and independently written implementations.
-
 ---
 
 ## Repository Structure
