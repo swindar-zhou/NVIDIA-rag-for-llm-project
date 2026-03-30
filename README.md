@@ -3,6 +3,39 @@
 Personal notes and implementations from the **NVIDIA Deep Learning Institute** course
 *"Building RAG Agents for LLMs"*.
 
+This project walks through building a production-style **Retrieval-Augmented Generation (RAG)** system from scratch — starting from raw API calls to LLMs, through LangChain orchestration, all the way to a deployed web service with semantic guardrails and automated evaluation. Each stage is grounded in real code: the `notes/` folder documents the concepts, and `projects/` has clean, runnable Python implementations.
+
+### What this covers
+
+- **LLM integration** — calling hosted models (NVIDIA NIM / OpenAI-compatible APIs) at three levels: raw HTTP, OpenAI client, and LangChain connector
+- **LangChain LCEL** — composing pipelines with the pipe `|` operator, dict-based state passing, and streaming output
+- **Stateful agents** — maintaining a structured knowledge base across conversation turns using Pydantic slot-filling (`RExtract`)
+- **Document processing** — loading, chunking, and progressively summarizing large documents with an iterative refinement loop
+- **Embeddings & semantic search** — dual-encoder embedding models, cosine similarity, and document expansion to improve retrieval signal
+- **Vector stores** — building and querying FAISS indexes, integrating conversation memory as a vector store, and `LongContextReorder` for better LLM attention
+- **RAG pipeline** — wiring retrieval and generation into a coherent chat system grounded in a document corpus
+- **Evaluation** — LLM-as-a-Judge pairwise scoring with synthetic QA pairs to measure RAG quality without human labeling
+- **API deployment** — serving LangChain chains as REST endpoints with LangServe + FastAPI
+- **Semantic guardrails** — training a fast embedding-based classifier to filter off-topic queries before they reach the LLM
+
+### Skills practiced
+
+| Area | Specifics |
+|---|---|
+| Python | async/await, Pydantic models, generator functions, functools.partial |
+| LangChain | LCEL, RunnableLambda, RunnableAssign, RunnableBranch, ChatPromptTemplate |
+| ML / NLP | embeddings, cosine similarity, logistic regression, PCA/t-SNE visualization |
+| Systems | FastAPI, uvicorn, Docker microservices, HTTP APIs, asyncio concurrency |
+| LLMOps | prompt engineering, model selection, streaming, LLM-as-a-Judge evaluation |
+
+### Where this is useful
+
+- **Enterprise document Q&A** — the core RAG pipeline (notebooks 7–9) is directly applicable to internal knowledge bases, support doc search, or research assistant tools
+- **Conversational agents with memory** — the stateful knowledge base pattern (notebook 4) works for any domain where an agent needs to track user-provided information across turns
+- **Large document ingestion** — the progressive summarization loop (notebook 5) scales to processing hundreds of pages without exceeding LLM context limits
+- **Content moderation / guardrails** — the embedding classifier approach (notebook 64) is a fast, low-latency alternative to LLM-based content filtering
+- **Automated evaluation pipelines** — the LLM-as-a-Judge pattern (notebook 8) applies to any LLM system where you need scalable quality measurement without manual labeling
+
 > **Note:** The original course notebooks (`course-contents/`) cannot be redistributed
 > without NVIDIA authorization and are excluded from this repo. Everything here is
 > my own paraphrased notes and independently written implementations.
@@ -54,6 +87,77 @@ independently with a `python <file>.py` entry point.
 | [08_evaluation.py](projects/08_evaluation.py) | LLM-as-a-Judge evaluation pipeline for RAG quality |
 | [09_langserve_server.py](projects/09_langserve_server.py) | FastAPI server exposing `/retriever` and `/generator` endpoints |
 | [64_guardrails.py](projects/64_guardrails.py) | Async embedding + logistic regression semantic guardrail |
+
+### System Architecture
+
+```mermaid
+flowchart TD
+    U(["👤 User Query"])
+
+    subgraph GR["🛡️ Guardrails  (64_guardrails.py)"]
+        direction TB
+        GE["NVIDIAEmbeddings\nembed_query()"]
+        GC["Logistic Regression\nClassifier"]
+        GB{"score ≥ 0.5?"}
+        GP["poor_sys_msg\n(politely decline)"]
+        GG["good_sys_msg\n(answer helpfully)"]
+        GE --> GC --> GB
+        GB -- "no" --> GP
+        GB -- "yes" --> GG
+    end
+
+    subgraph RS["🧠 Retrieval  (07_rag_pipeline.py)"]
+        direction TB
+        CS["ConvStore\nFAISS — conversation memory"]
+        DS["DocStore\nFAISS — arXiv paper chunks"]
+        LCR["LongContextReorder\n(most relevant → edges)"]
+        CS --> LCR
+        DS --> LCR
+    end
+
+    subgraph GEN["⚙️ Generation  (07 / 09)"]
+        direction TB
+        CP["ChatPromptTemplate\n{input} + {history} + {context}"]
+        LLM["ChatNVIDIA\nNVIDIA NIM endpoint"]
+        OP["StrOutputParser"]
+        CP --> LLM --> OP
+    end
+
+    subgraph SV["🌐 LangServe API  (09_langserve_server.py)"]
+        direction LR
+        EP1["POST /retriever"]
+        EP2["POST /generator"]
+        EP3["POST /basic_chat"]
+    end
+
+    subgraph EV["📊 Evaluation  (08_evaluation.py)"]
+        direction TB
+        SQ["Synthetic QA\nGeneration"]
+        JG["LLM-as-a-Judge\npairwise scoring"]
+        PS["Preference Score"]
+        SQ --> JG --> PS
+    end
+
+    MEM[("💾 Update ConvStore\nsave input + output")]
+
+    U --> GR
+    GG --> RS
+    RS --> GEN
+    GEN --> MEM
+    MEM --> CS
+    GEN --> U
+
+    EP1 -.->|"wraps"| DS
+    EP2 -.->|"wraps"| GEN
+    GEN -.->|"evaluated by"| EV
+
+    style GR fill:#1a1a2e,stroke:#e94560,color:#fff
+    style RS fill:#16213e,stroke:#0f3460,color:#fff
+    style GEN fill:#0f3460,stroke:#533483,color:#fff
+    style SV fill:#533483,stroke:#e94560,color:#fff
+    style EV fill:#16213e,stroke:#533483,color:#fff
+    style MEM fill:#1a1a2e,stroke:#0f3460,color:#fff
+```
 
 ### Quick start
 
