@@ -1,4 +1,4 @@
-# NVIDIA RAG for LLM — Personal Study Notes & Project Code
+# NVIDIA RAG for LLM Project Code
 
 Personal notes and implementations from the **NVIDIA Deep Learning Institute** course
 *"Building RAG Agents for LLMs"*.
@@ -54,7 +54,7 @@ This project walks through building a production-style **Retrieval-Augmented Gen
 ## Notes
 
 Personal notes written while going through the course — paraphrased concepts,
-key code patterns, and thinking questions. Not verbatim course content.
+key code patterns, and thinking questions.
 
 | File | Topic |
 |---|---|
